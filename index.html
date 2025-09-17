@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro y Cuestionario HTML</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+        
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .form-title {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .options label {
+            display: block;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: normal;
+        }
+        
+        .options label:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            display: block;
+            margin: 30px auto 0;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 300px;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .score {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+        
+        .correct {
+            color: #27ae60;
+        }
+        
+        .incorrect {
+            color: #e74c3c;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-code"></i>
+        </div>
+        <h1>Registro y Cuestionario HTML</h1>
+        <p class="description">Completa tus datos, responde las preguntas y recibe los resultados en tu correo.</p>
+        
+        <form id="quizForm">
+            <div class="form-section">
+                <h2 class="form-title">Datos Personales</h2>
+                <div class="form-group">
+                    <label for="name">Nombre completo:</label>
+                    <input type="text" id="name" placeholder="Ingresa tu nombre" required>
+                    <div class="error" id="nameError">Por favor, ingresa tu nombre.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Correo electrónico:</label>
+                    <input type="email" id="email" placeholder="ejemplo@correo.com" required>
+                    <div class="error" id="emailError">Por favor, ingresa un correo electrónico válido.</div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2 class="form-title">Cuestionario HTML</h2>
+                <div class="question">
+                    <p class="question-text">1. ¿Qué significa HTML?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q1" value="a"> a) Hyper Text Markup Language</label>
+                        <label><input type="radio" name="q1" value="b"> b) High Tech Modern Language</label>
+                        <label><input type="radio" name="q1" value="c"> c) Hyper Transfer Markup Language</label>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">2. ¿Qué etiqueta se utiliza para crear un enlace en HTML?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q2" value="a"> a) &lt;link&gt;</label>
+                        <label><input type="radio" name="q2" value="b"> b) &lt;a&gt;</label>
+                        <label><input type="radio" name="q2" value="c"> c) &lt;href&gt;</label>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">3. ¿Qué atributo se utiliza para abrir un enlace en una nueva pestaña?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q3" value="a"> a) target="_blank"</label>
+                        <label><input type="radio" name="q3" value="b"> b) new="_tab"</label>
+                        <label><input type="radio" name="q3" value="c"> c) open="_new"</label>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit">Enviar respuestas</button>
+        </form>
+        
+        <div class="success-message" id="successMessage">
+            ¡Formulario enviado con éxito! Revisa tu correo electrónico.
+        </div>
+        
+        <div class="result" id="result">
+            <h2>Resultados del cuestionario</h2>
+            <p>Has obtenido <span class="score" id="score"></span> de 3 puntos</p>
+            <p id="resultText"></p>
+        </div>
+    </div>
+
+    <script>
+        // Inicializar EmailJS con tu Public Key
+        // IMPORTANTE: Reemplaza "YOUR_PUBLIC_KEY" con tu clave pública de EmailJS
+        emailjs.init("txhtidRbfC1aM0q8m");
+        
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validar nombre
+            const nameInput = document.getElementById('name');
+            const nameError = document.getElementById('nameError');
+            const name = nameInput.value.trim();
+            
+            if (name === '') {
+                nameError.style.display = 'block';
+                return;
+            } else {
+                nameError.style.display = 'none';
+            }
+            
+            // Validar email
+            const emailInput = document.getElementById('email');
+            const emailError = document.getElementById('emailError');
+            const email = emailInput.value.trim();
+            
+            if (!validateEmail(email)) {
+                emailError.style.display = 'block';
+                return;
+            } else {
+                emailError.style.display = 'none';
+            }
+            
+            // Verificar que todas las preguntas estén respondidas
+            let allAnswered = true;
+            for (let i = 1; i <= 3; i++) {
+                const selected = document.querySelector(`input[name=q${i}]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                    alert(`Por favor, responde la pregunta ${i}`);
+                    break;
+                }
+            }
+            
+            if (!allAnswered) return;
+            
+            // Calcular puntuación
+            const answers = {
+                q1: 'a',
+                q2: 'b',
+                q3: 'a'
+            };
+            
+            let score = 0;
+            let userAnswers = {};
+            
+            for (let i = 1; i <= 3; i++) {
+                const selected = document.querySelector(`input[name=q${i}]:checked`);
+                userAnswers[`q${i}`] = selected.value;
+                
+                if (selected.value === answers[`q${i}`]) {
+                    score++;
+                }
+            }
+            
+            // Mostrar resultados
+            const resultDiv = document.getElementById('result');
+            const scoreSpan = document.getElementById('score');
+            const resultText = document.getElementById('resultText');
+            
+            scoreSpan.textContent = score;
+            
+            if (score === 3) {
+                resultText.innerHTML = '¡Excelente! Dominas los conceptos básicos de HTML. <span class="correct">✓</span>';
+            } else if (score >= 2) {
+                resultText.innerHTML = 'Buen trabajo, pero aún hay conceptos por reforzar. <span class="correct">✓</span>';
+            } else {
+                resultText.innerHTML = 'Es recomendable repasar los fundamentos de HTML. <span class="incorrect">✗</span>';
+            }
+            
+            resultDiv.style.display = 'block';
+            
+            // Preparar y enviar el correo
+            const templateParams = {
+                to_name: name,
+                to_email: email,
+                score: score,
+                total_questions: 3,
+                q1: userAnswers.q1 === 'a' ? 'Correcta' : 'Incorrecta',
+                q2: userAnswers.q2 === 'b' ? 'Correcta' : 'Incorrecta',
+                q3: userAnswers.q3 === 'a' ? 'Correcta' : 'Incorrecta'
+            };
+            
+            // Enviar el correo usando EmailJS
+            // IMPORTANTE: Reemplaza "YOUR_SERVICE_ID" y "YOUR_TEMPLATE_ID" con tus propios IDs
+            emailjs.send('service_wdqr55m', 'template_s9yt962', templateParams)
+                .then(function(response) {
+                    console.log('Correo enviado con éxito!', response.status, response.text);
+                    // Mostrar mensaje de éxito
+                    document.getElementById('successMessage').style.display = 'block';
+                    // Desplazar hacia el mensaje de éxito
+                    document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+                }, function(error) {
+                    console.error('Error al enviar el correo:', error);
+                    alert('Hubo un error al enviar el correo. Por favor, intenta nuevamente.');
+                });
+        });
+        
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+    
+    <!-- Font Awesome para el icono -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
