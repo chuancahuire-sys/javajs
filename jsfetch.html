@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ejemplo EmailJS con Fetch</title>
+</head>
+<body>
+  <h2>Fetch + EmailJS</h2>
+  <form id="contactForm">
+    <label>Nombre:</label><br>
+    <input type="text" id="nombre" required><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" id="email" required><br><br>
+
+    <label>Mensaje:</label><br>
+    <textarea id="mensaje" required></textarea><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    document.getElementById("contactForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const data = {
+        service_id: "service_wdqr55m",//service_id: "service_xxx",
+        template_id: "template_s9yt962",//template_id: "template_xxx",
+       // user_id: "public_xxx",   // tu public key
+        user_id: "txhtidRbfC1aM0q8m",   // tu public key
+       
+
+        template_params: {
+          from_name: document.getElementById("nombre").value,
+          from_email: document.getElementById("email").value,
+          message: document.getElementById("mensaje").value
+        }
+      };
+
+      fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+      .then((res) => {
+        if (res.ok) {
+          alert("✅ Correo enviado correctamente!");
+        } else {
+          alert("❌ Error al enviar el correo.");
+        }
+        return res.json();
+      })
+      .then(console.log)
+      .catch((err) => {
+        console.error("Error en la petición:", err);
+      });
+    });
+  </script>
+</body>
+</html>
