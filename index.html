@@ -2,18 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>EmailJS</title>
+  <title>API EmailJS</title>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
     // Inicializar EmailJS con tu Public Key
     (function(){
-      emailjs.init("txhtidRbfC1aM0q8m"); 
+      emailjs.init("2kItquBhpJcEUpG10"); 
     })();
 
     function enviarCorreo(e) {
       e.preventDefault(); // evitar recarga del form
        
-      emailjs.send("service_wdqr55m", "template_s9yt962", {
+      emailjs.send("service_kfeda89", "template_yy1ub79", {
       /*emailjs.send("service_xxx", "template_xxx", {*/
         from_name: document.getElementById("nombre").value,
         from_email: document.getElementById("email").value,
@@ -45,12 +45,12 @@
     <button type="submit">Enviar</button>
   </form>
   
-  <a href="jsfetch.html">JS con fetch</a>
+  
   <br>
 
   <a href="apijscss.html">Formulario con CSS3</a>
   <br>
-  <a href="permanencia.html">Permanencia 1</a>
+  <a href="permanencia.html">II Unidad</a>
 
 </body>
 </html>

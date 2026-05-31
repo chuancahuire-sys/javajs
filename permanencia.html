@@ -527,7 +527,7 @@
             window.addEventListener('offline', updateConnectionStatus);
             
             // Inicializar EmailJS con tu Public Key
-            emailjs.init("txhtidRbfC1aM0q8m");
+            emailjs.init("2kItquBhpJcEUpG10");
         });
         
         document.getElementById('quizForm').addEventListener('submit', function(e) {
@@ -696,7 +696,7 @@
             };
             
             // Enviar el correo usando EmailJS
-            emailjs.send('service_wdqr55m', 'template_s9yt962', lastTemplateParams)
+            emailjs.send('service_kfeda89', 'template_yy1ub79', lastTemplateParams)
                 .then(function(response) {
                     console.log('Correo enviado con éxito!', response.status, response.text);
                     
@@ -741,7 +741,7 @@
                 document.getElementById('errorMessage').style.display = 'none';
                 document.getElementById('loading').style.display = 'block';
                 
-                emailjs.send('service_wdqr55m', 'template_s9yt962', lastTemplateParams)
+                emailjs.send('service_kfeda89', 'template_lgxlt2l', lastTemplateParams)
                     .then(function(response) {
                         console.log('Correo enviado con éxito!', response.status, response.text);
                         
