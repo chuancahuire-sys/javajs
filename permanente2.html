@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuestionario II Unidad</title>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -285,11 +286,27 @@
             margin: 0 auto;
         }
 
+        .download-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
             }
@@ -300,7 +317,6 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -311,15 +327,12 @@
             .container {
                 padding: 15px;
             }
-
             h1 {
                 font-size: 1.8rem;
             }
-
             .form-section {
                 padding: 15px;
             }
-
             .progress-step {
                 width: 28px;
                 height: 28px;
@@ -491,6 +504,9 @@
             <h3>¡Formulario enviado con éxito!</h3>
             <p>Hemos enviado los resultados del cuestionario a tu correo electrónico.</p>
             <p>Revisa tu bandeja de entrada y, si no lo encuentras, la carpeta de spam.</p>
+            <button class="download-btn" onclick="downloadResults()">
+                <i class="fas fa-download"></i> Descargar resultados
+            </button>
         </div>
 
         <div class="error-message" id="errorMessage">
@@ -498,22 +514,28 @@
             <h3>Error de conexión</h3>
             <p>No pudimos enviar el correo debido a un problema de conexión.</p>
             <p>Por favor, verifica tu conexión a internet e intenta nuevamente.</p>
+            <button class="download-btn" onclick="downloadResults()">
+                <i class="fas fa-download"></i> Descargar resultados
+            </button>
         </div>
 
         <div class="result" id="result">
             <h2>Resultados del cuestionario</h2>
             <p>Has obtenido <span class="score" id="score"></span> de 20 puntos</p>
             <p id="resultText"></p>
+            <button class="download-btn" onclick="downloadResults()">
+                <i class="fas fa-download"></i> Descargar resultados
+            </button>
         </div>
     </div>
 
     <script>
+        // Variables globales para los resultados
+        let globalScore = 0;
+        let globalName = '';
+        let globalEmail = '';
+        let globalAnswerDetails = [];
 
-        // Configuración para GitHub Pages
-        if (window.location.hostname.includes('github.io')) {
-            // Usar una versión más reciente de EmailJS
-            document.write('<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"><\/script>');
-        }
         let currentQuestion = 1;
         const totalQuestions = 10;
 
@@ -552,7 +574,7 @@
             });
         }
 
-        document.getElementById('nextBtn').addEventListener('click', function () {
+        document.getElementById('nextBtn').addEventListener('click', function() {
             const selected = document.querySelector(`input[name=q${currentQuestion}]:checked`);
             const errorEl = document.getElementById(`q${currentQuestion}Error`);
 
@@ -568,7 +590,7 @@
             }
         });
 
-        document.getElementById('prevBtn').addEventListener('click', function () {
+        document.getElementById('prevBtn').addEventListener('click', function() {
             if (currentQuestion > 1) {
                 currentQuestion--;
                 showQuestion(currentQuestion);
@@ -578,7 +600,7 @@
         // Inicializar EmailJS
         emailjs.init("XVMcxvR1K6nIWFuAi");
 
-        document.getElementById('quizForm').addEventListener('submit', function (e) {
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
             // Validar última pregunta
@@ -596,8 +618,16 @@
             const email = document.getElementById('email').value.trim();
 
             const answers = {
-                q1: 'a', q2: 'b', q3: 'a', q4: 'c', q5: 'b',
-                q6: 'b', q7: 'b', q8: 'b', q9: 'b', q10: 'a'
+                q1: 'a',
+                q2: 'b',
+                q3: 'a',
+                q4: 'c',
+                q5: 'b',
+                q6: 'b',
+                q7: 'b',
+                q8: 'b',
+                q9: 'b',
+                q10: 'a'
             };
 
             let score = 0;
@@ -615,6 +645,12 @@
                     answerDetails.push(`Pregunta ${i}: Incorrecta ✗ (Respuesta correcta: ${answers[`q${i}`]})`);
                 }
             }
+
+            // Guardar en variables globales para descarga
+            globalScore = score;
+            globalName = name;
+            globalEmail = email;
+            globalAnswerDetails = answerDetails;
 
             const resultDiv = document.getElementById('result');
             const scoreSpan = document.getElementById('score');
@@ -700,22 +736,70 @@
                 })
             };
 
+            // Intentar enviar por EmailJS
             emailjs.send('service_ojl65m8', 'template_kqyjc9x', templateParams)
-                .then(function (response) {
+                .then(function(response) {
                     console.log('Correo enviado con éxito!', response.status, response.text);
                     loadingElement.style.display = 'none';
                     const successMessage = document.getElementById('successMessage');
                     successMessage.style.display = 'block';
                     successMessage.scrollIntoView({ behavior: 'smooth' });
                     submitButton.disabled = false;
-                }, function (error) {
+                })
+                .catch(function(error) {
                     console.error('Error al enviar el correo:', error);
                     loadingElement.style.display = 'none';
+                    // Mostrar mensaje de error pero con opción de descargar
                     const errorMessage = document.getElementById('errorMessage');
                     errorMessage.style.display = 'block';
+                    errorMessage.innerHTML += `
+                        <p>💡 Puedes descargar tus resultados haciendo clic en el botón de abajo.</p>
+                    `;
                     errorMessage.scrollIntoView({ behavior: 'smooth' });
                     submitButton.disabled = false;
                 });
+        }
+
+        // Función para descargar resultados
+        function downloadResults() {
+            const content = `RESULTADOS DEL CUESTIONARIO
+            ================================
+            
+            Nombre: ${globalName}
+            Email: ${globalEmail}
+            Puntaje: ${globalScore}/20
+            Fecha: ${new Date().toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })}
+            
+            DETALLES DE RESPUESTAS:
+            ${globalAnswerDetails.join('\n')}
+            
+            ================================
+            ¡Gracias por participar!`;
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `resultados_${globalName.replace(/\s+/g, '_')}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Función para reiniciar el cuestionario (opcional)
+        function resetQuiz() {
+            document.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            currentQuestion = 1;
+            showQuestion(1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
