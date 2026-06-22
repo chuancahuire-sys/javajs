@@ -286,6 +286,115 @@
             margin: 0 auto;
         }
 
+        .timer-container {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 999;
+            text-align: center;
+        }
+        
+        .timer-btn {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
+            border: 3px solid #ff8888;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 800;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6), 0 0 40px rgba(255, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            line-height: 1.2;
+            animation: glow 1.5s ease-in-out infinite alternate;
+            text-transform: uppercase;
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 20px rgba(255, 0, 0, 0.6), 0 0 40px rgba(255, 0, 0, 0.3);
+                transform: scale(1);
+            }
+            to {
+                box-shadow: 0 0 30px rgba(255, 0, 0, 0.9), 0 0 60px rgba(255, 0, 0, 0.5);
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            10% { transform: translateX(-4px) rotate(-3deg); }
+            20% { transform: translateX(4px) rotate(3deg); }
+            30% { transform: translateX(-4px) rotate(-3deg); }
+            40% { transform: translateX(4px) rotate(3deg); }
+            50% { transform: translateX(-2px) rotate(-2deg); }
+            60% { transform: translateX(2px) rotate(2deg); }
+            70% { transform: translateX(-2px) rotate(-2deg); }
+            80% { transform: translateX(2px) rotate(2deg); }
+            90% { transform: translateX(-1px) rotate(-1deg); }
+        }
+        
+        .timer-btn.shake {
+            animation: shake 0.8s ease-in-out, glow 1.5s ease-in-out infinite alternate;
+        }
+        
+        .timer-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.9), 0 0 80px rgba(255, 0, 0, 0.5);
+        }
+        
+        .timer-btn:disabled {
+            background: #95a5a6;
+            border-color: #bbb;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            animation: none;
+        }
+        
+        .timer-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .timer-display {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #e74c3c;
+            margin: 10px 0 0 0;
+            font-family: 'Courier New', monospace;
+            display: none;
+            text-align: center;
+        }
+        
+        .timer-display.active {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .timer-display.warning {
+            color: #f39c12;
+        }
+        
+        .timer-display.danger {
+            color: #e74c3c;
+            animation: pulse 0.5s infinite;
+        }
+        
         .download-btn {
             background: #3498db;
             color: white;
@@ -344,12 +453,20 @@
 
 <body>
     <div class="container">
-        <h1>II Unidad</h1>
+        <h1>Permanencia II</h1>
         <div style="text-align: center; margin-bottom: 5px;">
             <i class="fas fa-terminal fa-3x" style="color: #3498db;"></i>
         </div>
         <h1>Cuestionario Big Data</h1>
-        <p class="description">Responde las preguntas y recibe los resultados en tu correo.</p>
+        <p class="description">Tienes 3 minutos para responder las 10 preguntas. ¡Buena suerte!</p>
+        
+        <div class="timer-container">
+            <button class="timer-btn shake" id="startTimerBtn" onclick="startTimer()">
+                <i class="fas fa-clock"></i>
+                <span>3 min</span>
+            </button>
+            <div class="timer-display" id="timerDisplay">03:00</div>
+        </div>
 
         <!-- Barra de progreso -->
         <div class="progress-bar" id="progressBar"></div>
@@ -488,7 +605,7 @@
                 <div class="nav-buttons">
                     <button type="button" id="prevBtn" disabled><i class="fas fa-arrow-left"></i> Anterior</button>
                     <button type="button" id="nextBtn">Siguiente <i class="fas fa-arrow-right"></i></button>
-                    <button type="submit" id="submitBtn" class="submit-btn" style="display: none;"><i
+                    <button type="submit" id="submitBtn" class="submit-btn" style="display: none;" disabled><i
                             class="fas fa-paper-plane"></i> Enviar respuestas</button>
                 </div>
             </div>
@@ -535,6 +652,74 @@
         let globalName = '';
         let globalEmail = '';
         let globalAnswerDetails = [];
+
+        let timerInterval = null;
+        let timeRemaining = 180;
+        let timerActive = false;
+
+        function startTimer() {
+            if (timerActive) return;
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            if (!name || !email) {
+                alert('Por favor, completa tus datos personales antes de iniciar.');
+                return;
+            }
+
+            timerActive = true;
+            timeRemaining = 180;
+
+            const btn = document.getElementById('startTimerBtn');
+            btn.disabled = true;
+            btn.className = 'timer-btn';
+            btn.innerHTML = '<i class="fas fa-hourglass-half"></i><span id="timerBtnText">03:00</span>';
+
+            const display = document.getElementById('timerDisplay');
+            display.classList.add('active');
+            display.textContent = formatTime(timeRemaining);
+
+            document.getElementById('submitBtn').disabled = false;
+
+            timerInterval = setInterval(function() {
+                timeRemaining--;
+                const timeStr = formatTime(timeRemaining);
+                display.textContent = timeStr;
+                const btnText = document.getElementById('timerBtnText');
+                if (btnText) btnText.textContent = timeStr;
+
+                if (timeRemaining <= 30) {
+                    display.classList.add('danger');
+                    display.classList.remove('warning');
+                } else if (timeRemaining <= 60) {
+                    display.classList.add('warning');
+                    display.classList.remove('danger');
+                }
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    timerActive = false;
+                    display.textContent = '00:00';
+                    if (btnText) btnText.textContent = '00:00';
+                    alert('¡Tiempo terminado! Ya no puedes responder más preguntas.');
+                }
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            timerActive = false;
+        }
 
         let currentQuestion = 1;
         const totalQuestions = 10;
@@ -600,8 +785,23 @@
         // Inicializar EmailJS
         emailjs.init("XVMcxvR1K6nIWFuAi");
 
+        const shakeBtn = document.getElementById('startTimerBtn');
+        setInterval(function() {
+            if (!shakeBtn.disabled) {
+                shakeBtn.classList.remove('shake');
+                void shakeBtn.offsetWidth;
+                shakeBtn.classList.add('shake');
+            }
+        }, 4000);
+
         document.getElementById('quizForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            if (!timerActive && timeRemaining > 0) {
+                alert('Debes iniciar el temporizador primero.');
+                return;
+            }
+            stopTimer();
 
             // Validar última pregunta
             const selected = document.querySelector(`input[name=q${currentQuestion}]:checked`);

@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario HTML y CSS - 3 Minutos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #21105e;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+        
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #21105e;
+            font-size: 1.1rem;
+        }
+        
+        .timer-container {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 999;
+            text-align: center;
+        }
+        
+        .timer-btn {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
+            border: 3px solid #ff8888;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 800;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6), 0 0 40px rgba(255, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            line-height: 1.2;
+            animation: glow 1.5s ease-in-out infinite alternate;
+            text-transform: uppercase;
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 20px rgba(255, 0, 0, 0.6), 0 0 40px rgba(255, 0, 0, 0.3);
+                transform: scale(1);
+            }
+            to {
+                box-shadow: 0 0 30px rgba(255, 0, 0, 0.9), 0 0 60px rgba(255, 0, 0, 0.5);
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            10% { transform: translateX(-4px) rotate(-3deg); }
+            20% { transform: translateX(4px) rotate(3deg); }
+            30% { transform: translateX(-4px) rotate(-3deg); }
+            40% { transform: translateX(4px) rotate(3deg); }
+            50% { transform: translateX(-2px) rotate(-2deg); }
+            60% { transform: translateX(2px) rotate(2deg); }
+            70% { transform: translateX(-2px) rotate(-2deg); }
+            80% { transform: translateX(2px) rotate(2deg); }
+            90% { transform: translateX(-1px) rotate(-1deg); }
+        }
+        
+        .timer-btn.shake {
+            animation: shake 0.8s ease-in-out, glow 1.5s ease-in-out infinite alternate;
+        }
+        
+        .timer-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.9), 0 0 80px rgba(255, 0, 0, 0.5);
+        }
+        
+        .timer-btn:disabled {
+            background: #95a5a6;
+            border-color: #bbb;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            animation: none;
+        }
+        
+        .timer-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .timer-display {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #e74c3c;
+            margin: 10px 0 0 0;
+            font-family: 'Courier New', monospace;
+            display: none;
+            text-align: center;
+        }
+        
+        .timer-display.active {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .timer-display.warning {
+            color: #f39c12;
+        }
+        
+        .timer-display.danger {
+            color: #e74c3c;
+            animation: pulse 0.5s infinite;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border-radius: 10px;
+        }
+        
+        .form-title {
+            font-size: 1.4rem;
+            color: #e7ebee;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #e9ecee;
+            font-size: 1.1rem;
+        }
+        
+        .options label {
+            display: block;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: normal;
+        }
+        
+        .options label:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            display: block;
+            margin: 30px auto 0;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 300px;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .score {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+        
+        .correct {
+            color: #27ae60;
+        }
+        
+        .incorrect {
+            color: #e74c3c;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+            display: none;
+            padding: 20px;
+            background: #d4edda;
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+            display: none;
+            padding: 20px;
+            background: #f8d7da;
+            border-radius: 10px;
+            border: 1px solid #f5c6cb;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .success-message i,
+        .error-message i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            color: #3498db;
+        }
+        
+        .offline-warning {
+            display: none;
+            background: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ffeeba;
+            text-align: center;
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="connectionStatus" class="connection-status offline">
+        <i class="fas fa-wifi"></i>
+        <span>Sin conexión</span>
+    </div>
+
+    <div class="container">
+        <div class="offline-warning" id="offlineWarning">
+            <i class="fas fa-wifi"></i> Parece que no tienes conexión a internet. Conéctate para enviar los resultados por correo.
+        </div>
+        
+        <h1>Desarrollo Web Full Stack</h1>
+        
+        <div class="logo">
+            <i class="fas fa-code fa-3x"></i>
+            <i class="fab fa-css3 fa-3x"></i>
+        </div>
+        <h1>Cuestionario de HTML5 y CSS3</h1>
+        <p class="description">Tienes 3 minutos para responder las 10 preguntas. ¡Buena suerte!</p>
+        
+        <div class="timer-container">
+            <button class="timer-btn shake" id="startTimerBtn" onclick="startTimer()">
+                <i class="fas fa-clock"></i>
+                <span>3 min</span>
+            </button>
+            <div class="timer-display" id="timerDisplay">03:00</div>
+        </div>
+        
+        <form id="quizForm">
+            <div class="form-section">
+                <h2 class="form-title">Datos Personales</h2>
+                <div class="form-group">
+                    <label for="name" style="color: #e7ebee;">Nombre completo:</label>
+                    <input type="text" id="name" placeholder="Ingresa tu nombre" required>
+                    <div class="error" id="nameError">Por favor, ingresa tu nombre.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" style="color: #f3f3f3;">Correo electrónico:</label>
+                    <input type="email" id="email" placeholder="ejemplo@correo.com" required>
+                    <div class="error" id="emailError">Por favor, ingresa un correo electrónico válido.</div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2 class="form-title">Cuestionario HTML y CSS</h2>
+                
+                <div class="question">
+                    <p class="question-text">1. ¿Qué significa HTML?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q1" value="a"> a) Hyper Text Markup Language</label>
+                        <label><input type="radio" name="q1" value="b"> b) High Tech Modern Language</label>
+                        <label><input type="radio" name="q1" value="c"> c) Hyper Transfer Markup Language</label>
+                    </div>
+                    <div class="error" id="q1Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">2. ¿Qué etiqueta se utiliza para crear un enlace en HTML?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q2" value="a"> a) &lt;link&gt;</label>
+                        <label><input type="radio" name="q2" value="b"> b) &lt;a&gt;</label>
+                        <label><input type="radio" name="q2" value="c"> c) &lt;href&gt;</label>
+                    </div>
+                    <div class="error" id="q2Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">3. ¿Qué atributo se utiliza para abrir un enlace en una nueva pestaña?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q3" value="a"> a) target="_blank"</label>
+                        <label><input type="radio" name="q3" value="b"> b) new="_tab"</label>
+                        <label><input type="radio" name="q3" value="c"> c) open="_new"</label>
+                    </div>
+                    <div class="error" id="q3Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">4. ¿Cuál es la propiedad CSS que se utiliza para cambiar el color de fondo?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q4" value="a"> a) background-color</label>
+                        <label><input type="radio" name="q4" value="b"> b) color-background</label>
+                        <label><input type="radio" name="q4" value="c"> c) bgcolor</label>
+                    </div>
+                    <div class="error" id="q4Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">5. ¿Qué etiqueta HTML se utiliza para definir una lista ordenada?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q5" value="a"> a) &lt;ul&gt;</label>
+                        <label><input type="radio" name="q5" value="b"> b) &lt;ol&gt;</label>
+                        <label><input type="radio" name="q5" value="c"> c) &lt;li&gt;</label>
+                    </div>
+                    <div class="error" id="q5Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">6. ¿Cuál es la propiedad CSS que se utiliza para cambiar el tipo de letra?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q6" value="a"> a) font-family</label>
+                        <label><input type="radio" name="q6" value="b"> b) text-style</label>
+                        <label><input type="radio" name="q6" value="c"> c) font-style</label>
+                    </div>
+                    <div class="error" id="q6Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">7. ¿Qué etiqueta HTML se utiliza para insertar una imagen?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q7" value="a"> a) &lt;img&gt;</label>
+                        <label><input type="radio" name="q7" value="b"> b) &lt;image&gt;</label>
+                        <label><input type="radio" name="q7" value="c"> c) &lt;picture&gt;</label>
+                    </div>
+                    <div class="error" id="q7Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">8. ¿Cuál es la propiedad CSS que se utiliza para añadir espacio entre el contenido y el borde?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q8" value="a"> a) margin</label>
+                        <label><input type="radio" name="q8" value="b"> b) spacing</label>
+                        <label><input type="radio" name="q8" value="c"> c) padding</label>
+                    </div>
+                    <div class="error" id="q8Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">9. ¿Qué atributo HTML se utiliza para definir estilos en línea?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q9" value="a"> a) styles</label>
+                        <label><input type="radio" name="q9" value="b"> b) css</label>
+                        <label><input type="radio" name="q9" value="c"> c) style</label>
+                    </div>
+                    <div class="error" id="q9Error">Por favor, responde esta pregunta.</div>
+                </div>
+                
+                <div class="question">
+                    <p class="question-text">10. ¿Cuál es la propiedad CSS que se utiliza para cambiar el tamaño de la letra?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q10" value="a"> a) text-size</label>
+                        <label><input type="radio" name="q10" value="b"> b) font-size</label>
+                        <label><input type="radio" name="q10" value="c"> c) text-style</label>
+                    </div>
+                    <div class="error" id="q10Error">Por favor, responde esta pregunta.</div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Enviando resultados a tu correo...</p>
+            </div>
+            
+            <button type="submit" id="submitBtn" disabled>Enviar respuestas</button>
+        </form>
+        
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <h3>¡Formulario enviado con éxito!</h3>
+            <p>Hemos enviado los resultados del cuestionario a tu correo electrónico.</p>
+            <p>Revisa tu bandeja de entrada y, si no lo encuentras, la carpeta de spam.</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Error de conexión</h3>
+            <p>No pudimos enviar el correo debido a un problema de conexión.</p>
+            <p>Por favor, verifica tu conexión a internet e intenta nuevamente.</p>
+            <button onclick="retryEmail()" style="margin-top: 15px; background: #e74c3c;">Reintentar envío</button>
+        </div>
+        
+        <div class="result" id="result">
+            <h2>Resultados del cuestionario</h2>
+            <p>Has obtenido <span class="score" id="score"></span> de 20 puntos</p>
+            <p id="resultText"></p>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval = null;
+        let timeRemaining = 180;
+        let timerActive = false;
+
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            const offlineWarning = document.getElementById('offlineWarning');
+            
+            if (navigator.onLine) {
+                statusElement.className = 'connection-status online';
+                statusElement.innerHTML = '<i class="fas fa-wifi"></i><span>Conectado</span>';
+                offlineWarning.style.display = 'none';
+            } else {
+                statusElement.className = 'connection-status offline';
+                statusElement.innerHTML = '<i class="fas fa-wifi"></i><span>Sin conexión</span>';
+                offlineWarning.style.display = 'block';
+            }
+        }
+        
+        window.addEventListener('load', function() {
+            updateConnectionStatus();
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            emailjs.init("2kItquBhpJcEUpG10");
+
+            const btn = document.getElementById('startTimerBtn');
+            setInterval(function() {
+                if (!btn.disabled) {
+                    btn.classList.remove('shake');
+                    void btn.offsetWidth;
+                    btn.classList.add('shake');
+                }
+            }, 4000);
+        });
+
+        function startTimer() {
+            if (timerActive) return;
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            if (!name || !email) {
+                alert('Por favor, completa tus datos personales antes de iniciar.');
+                return;
+            }
+
+            timerActive = true;
+            timeRemaining = 180;
+
+            const btn = document.getElementById('startTimerBtn');
+            btn.disabled = true;
+            btn.className = 'timer-btn';
+            btn.innerHTML = '<i class="fas fa-hourglass-half"></i><span id="timerBtnText">03:00</span>';
+
+            const display = document.getElementById('timerDisplay');
+            display.classList.add('active');
+            display.textContent = formatTime(timeRemaining);
+
+            document.getElementById('submitBtn').disabled = false;
+
+            timerInterval = setInterval(function() {
+                timeRemaining--;
+                const timeStr = formatTime(timeRemaining);
+                display.textContent = timeStr;
+                const btnText = document.getElementById('timerBtnText');
+                if (btnText) btnText.textContent = timeStr;
+
+                if (timeRemaining <= 30) {
+                    display.classList.add('danger');
+                    display.classList.remove('warning');
+                } else if (timeRemaining <= 60) {
+                    display.classList.add('warning');
+                    display.classList.remove('danger');
+                }
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    timerActive = false;
+                    display.textContent = '00:00';
+                    if (btnText) btnText.textContent = '00:00';
+                    alert('¡Tiempo terminado! Ya no puedes responder más preguntas.');
+                }
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            timerActive = false;
+        }
+
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!timerActive && timeRemaining > 0) {
+                alert('Debes iniciar el temporizador primero.');
+                return;
+            }
+            submitQuiz();
+        });
+
+        function submitQuiz() {
+            stopTimer();
+
+            if (!validateForm()) return;
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            const answers = {
+                q1: 'a', q2: 'b', q3: 'a', q4: 'a', q5: 'b',
+                q6: 'a', q7: 'a', q8: 'c', q9: 'c', q10: 'b'
+            };
+
+            let score = 0;
+            let userAnswers = {};
+            let answerDetails = [];
+
+            for (let i = 1; i <= 10; i++) {
+                const selected = document.querySelector(`input[name=q${i}]:checked`);
+                if (!selected) continue;
+                userAnswers[`q${i}`] = selected.value;
+
+                if (selected.value === answers[`q${i}`]) {
+                    score += 2;
+                    answerDetails.push(`Pregunta ${i}: Correcta (+2 puntos) ✓`);
+                } else {
+                    answerDetails.push(`Pregunta ${i}: Incorrecta ✗ (Respuesta correcta: ${answers[`q${i}`]})`);
+                }
+            }
+
+            const resultDiv = document.getElementById('result');
+            const scoreSpan = document.getElementById('score');
+            const resultText = document.getElementById('resultText');
+
+            scoreSpan.textContent = score;
+
+            if (score >= 18) {
+                resultText.innerHTML = '¡Excelente! Dominas los conceptos básicos de HTML y CSS. <span class="correct">✓</span>';
+            } else if (score >= 12) {
+                resultText.innerHTML = 'Buen trabajo, pero aún hay conceptos por reforzar. <span class="correct">✓</span>';
+            } else {
+                resultText.innerHTML = 'Es recomendable repasar los fundamentos de HTML y CSS. <span class="incorrect">✗</span>';
+            }
+
+            resultDiv.style.display = 'block';
+
+            sendEmail(name, email, score, userAnswers, answerDetails);
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            const nameInput = document.getElementById('name');
+            const nameError = document.getElementById('nameError');
+            const name = nameInput.value.trim();
+
+            if (name === '') {
+                nameError.style.display = 'block';
+                isValid = false;
+            } else {
+                nameError.style.display = 'none';
+            }
+
+            const emailInput = document.getElementById('email');
+            const emailError = document.getElementById('emailError');
+            const email = emailInput.value.trim();
+
+            if (!validateEmail(email)) {
+                emailError.style.display = 'block';
+                isValid = false;
+            } else {
+                emailError.style.display = 'none';
+            }
+
+            for (let i = 1; i <= 10; i++) {
+                const selected = document.querySelector(`input[name=q${i}]:checked`);
+                const errorElement = document.getElementById(`q${i}Error`);
+
+                if (!selected) {
+                    errorElement.style.display = 'block';
+                    isValid = false;
+                } else {
+                    errorElement.style.display = 'none';
+                }
+            }
+
+            return isValid;
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function sendEmail(name, email, score, userAnswers, answerDetails) {
+            const loadingElement = document.getElementById('loading');
+            const submitButton = document.getElementById('submitBtn');
+            loadingElement.style.display = 'block';
+            submitButton.disabled = true;
+
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+
+            lastTemplateParams = {
+                to_name: name,
+                to_email: email,
+                from_name: "Equipo de Cuestionarios Web",
+                score: score,
+                total_questions: 20,
+                answer_details: answerDetails.join("\n"),
+                reply_to: "noreply@cuestionarioweb.com",
+                date: new Date().toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                })
+            };
+
+            emailjs.send('service_kfeda89', 'template_yy1ub79', lastTemplateParams)
+                .then(function(response) {
+                    console.log('Correo enviado con éxito!', response.status, response.text);
+                    loadingElement.style.display = 'none';
+                    const successMessage = document.getElementById('successMessage');
+                    successMessage.style.display = 'block';
+                    successMessage.scrollIntoView({ behavior: 'smooth' });
+                    submitButton.disabled = false;
+                }, function(error) {
+                    console.error('Error al enviar el correo:', error);
+                    loadingElement.style.display = 'none';
+                    const errorMessage = document.getElementById('errorMessage');
+                    errorMessage.style.display = 'block';
+                    errorMessage.scrollIntoView({ behavior: 'smooth' });
+                    submitButton.disabled = false;
+                });
+        }
+
+        let lastTemplateParams = null;
+
+        function retryEmail() {
+            if (!navigator.onLine) {
+                alert("No tienes conexión a internet. Conéctate para enviar el formulario.");
+                return;
+            }
+
+            if (lastTemplateParams) {
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('loading').style.display = 'block';
+
+                emailjs.send('service_kfeda89', 'template_lgxlt2l', lastTemplateParams)
+                    .then(function(response) {
+                        console.log('Correo enviado con éxito!', response.status, response.text);
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('successMessage').style.display = 'block';
+                        document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+                    }, function(error) {
+                        console.error('Error al enviar el correo:', error);
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('errorMessage').style.display = 'block';
+                        document.getElementById('errorMessage').scrollIntoView({ behavior: 'smooth' });
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
